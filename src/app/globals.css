@@ -2,30 +2,48 @@
 
 @theme {
   --color-background: #050505;
-  --color-foreground: #f0f0f0;
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --color-foreground: #e0e0e0;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-space-grotesk), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 @layer base {
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    @apply antialiased selection:bg-blue-500/30 selection:text-blue-200;
+    @apply antialiased;
   }
 }
 
-/* Custom scrollbar for a sleeker look */
+/* Aerospace Technical Overrides */
+/* Enforce sharp corners for rounded utilities heavily used previously */
+@layer utilities {
+  .rounded-2xl, .rounded-xl, .rounded-lg, .rounded-md, .rounded {
+    border-radius: 2px !important;
+  }
+  .rounded-full {
+    border-radius: 9999px !important; /* Allow circles for status indicators */
+  }
+  
+  /* Grid pattern for HUD effect */
+  .bg-grid-white {
+    background-size: 40px 40px;
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  }
+}
+
+/* Custom scrollbar - technical precision look */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 4px; /* Thin line */
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: #050505;
 }
 ::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
+  background: #1e3a8a; /* Deep blue, matching cold aesthetic */
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #3b82f6; /* Electric blue */
 }
+

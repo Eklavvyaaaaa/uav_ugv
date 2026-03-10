@@ -101,13 +101,34 @@ export default function ImageSequence({
           ref={canvasRef} 
           width={1920} 
           height={1080} 
-          className="w-full h-full object-cover transform-gpu hardware-acceleration opacity-80 mix-blend-screen"
+          className="w-full h-full object-cover transform-gpu hardware-acceleration opacity-90 mix-blend-screen"
         />
         
-        {/* Overlay Gradients & Text */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-[#050505]/50 z-10 pointer-events-none" />
+        {/* Overlay Gradients & HUD Grid */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505]/50 z-10 pointer-events-none" />
+        <div className="absolute inset-0 bg-grid-white opacity-5 z-10 pointer-events-none" />
         
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none p-4">
+        {/* HUD Crosshairs */}
+        <div className="absolute inset-4 z-20 pointer-events-none border border-white/[0.03] hidden md:block">
+           <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-white/20" />
+           <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-white/20" />
+           <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-white/20" />
+           <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-white/20" />
+           
+           <div className="absolute top-1/2 left-0 -translate-y-1/2 w-4 h-px bg-white/10" />
+           <div className="absolute top-1/2 right-0 -translate-y-1/2 w-4 h-px bg-white/10" />
+           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-4 bg-white/10" />
+           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-px h-4 bg-white/10" />
+           
+           <div className="absolute top-4 left-4 text-[10px] font-mono text-gray-500 tracking-widest leading-none">
+             LAT: 28.6139<br/>LNG: 77.2090
+           </div>
+           <div className="absolute bottom-4 right-4 text-[10px] font-mono text-gray-500 tracking-widest text-right leading-none">
+             SYS.ON<br/>SECURE
+           </div>
+        </div>
+        
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-30 pointer-events-none p-4">
            <motion.div 
              style={{
                opacity: useTransform(scrollYProgress, [0, 0.2, 0.4], [1, 1, 0]),
@@ -115,17 +136,17 @@ export default function ImageSequence({
              }}
              className="text-center"
            >
-             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono mb-8 backdrop-blur-md">
-                <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+             <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/40 border border-white/10 text-gray-300 text-[10px] font-mono font-bold tracking-[0.2em] uppercase mb-8 backdrop-blur-md">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full bg-white opacity-75"></span>
+                  <span className="relative inline-flex h-1.5 w-1.5 bg-white"></span>
                 </span>
                 SYSTEM ACTIVE
              </div>
-             <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-6 bg-clip-text text-transparent bg-gradient-to-br from-white via-gray-200 to-gray-600 drop-shadow-2xl">
-                 GeoGuard Next-Gen
+             <h1 className="text-5xl md:text-8xl lg:text-9xl font-mono font-black tracking-tighter uppercase mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-600 drop-shadow-2xl">
+                 CORE.SYSTEM
              </h1>
-             <p className="mt-4 text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto font-light tracking-wide">
+             <p className="mt-4 text-sm md:text-base text-gray-400 max-w-2xl mx-auto font-mono uppercase tracking-[0.3em]">
                 Scroll to explore the architecture of modern location security.
              </p>
            </motion.div>

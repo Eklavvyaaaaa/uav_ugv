@@ -1,70 +1,82 @@
-import { Server, Smartphone, ShieldAlert, Cpu, Database, CloudRain, BellRing } from "lucide-react";
+import { Server, Smartphone, ShieldAlert, Cpu, Database, BellRing, Target, Crosshair } from "lucide-react";
 
 export default function SystemArchitecturePage() {
   return (
-    <div className="min-h-screen bg-[#050505] py-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <header className="mb-16 text-center">
-          <h1 className="text-4xl font-extrabold text-white mb-4">System Architecture</h1>
-          <p className="text-gray-400 max-w-3xl mx-auto text-lg">
+    <div className="min-h-screen bg-[#050505] py-24 relative overflow-hidden">
+      <div className="absolute inset-0 bg-grid-white opacity-5 pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-[1px] h-full bg-gradient-to-b from-transparent via-blue-500/10 to-transparent pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <header className="mb-20 border-b border-white/10 pb-10">
+          <div className="inline-flex items-center gap-3 px-3 py-1 bg-blue-500/[0.05] border border-blue-500/30 text-blue-400 text-[10px] font-mono font-bold tracking-[0.2em] uppercase mb-6">
+            <Target className="w-3.5 h-3.5" />
+            SYSTEM.TOPOLOGY.MAP // v2.0
+          </div>
+          <h1 className="text-4xl md:text-5xl font-mono font-black uppercase text-white tracking-tighter mb-4">Architecture Design</h1>
+          <p className="text-sm text-gray-400 max-w-3xl font-mono uppercase tracking-widest leading-relaxed">
             A secure, scalable architecture designed for real-time data ingestion, processing, and anomaly detection. Explore the data workflow from the edge device back to the monitoring dashboard.
           </p>
         </header>
 
         {/* Visual Workflow Diagram */}
-        <div className="relative py-12 max-w-4xl mx-auto">
+        <div className="relative py-12 max-w-5xl mx-auto mb-20">
           {/* Connection Lines (Desktop) */}
-          <div className="hidden md:block absolute top-[120px] left-[15%] right-[15%] h-0.5 bg-gradient-to-r from-blue-500/50 via-purple-500/50 to-emerald-500/50 z-0"></div>
+          <div className="hidden md:block absolute top-[120px] left-[10%] right-[10%] h-[1px] bg-white/10 z-0">
+             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/50 via-purple-500/50 to-emerald-500/50 opacity-20" />
+          </div>
 
-          <div className="flex flex-col md:flex-row justify-between relative z-10 gap-8">
+          <div className="flex flex-col md:flex-row justify-between relative z-10 gap-px bg-white/10 border border-white/10 p-px">
             <ArchitectureNode 
-              icon={<Smartphone className="w-8 h-8 text-blue-400" />}
+              icon={<Smartphone className="w-6 h-6 text-white" />}
               title="Edge Device (UAV/UGV)"
               description="Collects GPS & IMU telemetry"
-              color="blue"
+              metric="SENS.LINK: OK"
+              accent="text-blue-500"
             />
             <ArchitectureNode 
-              icon={<Server className="w-8 h-8 text-purple-400" />}
+              icon={<Server className="w-6 h-6 text-white" />}
               title="Processing Engine"
               description="Geofence bounds & verification"
-              color="purple"
+              metric="CORE.CALC: ACTIVE"
+              accent="text-purple-500"
             />
             <ArchitectureNode 
-              icon={<ShieldAlert className="w-8 h-8 text-emerald-400" />}
+              icon={<ShieldAlert className="w-6 h-6 text-white" />}
               title="Response System"
               description="Alert generation & logging"
-              color="emerald"
+              metric="THREAT.MON: 0"
+              accent="text-emerald-500"
             />
           </div>
         </div>
 
         {/* Detailed Module Explanations */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/10 border border-white/10 p-px">
           <ModuleDetails
-            icon={<Cpu className="w-6 h-6 text-indigo-400" />}
+            icon={<Cpu className="w-5 h-5 text-blue-400" />}
             title="Telemetry Ingestion"
-            content="Devices stream their precise location (Latitude, Longitude, Altitude) alongside IMU data to the Node.js backend via WebSockets or HTTP POST requests at a high frequency (e.g., 10Hz)."
+            content="Devices stream their precise location (Latitude, Longitude, Altitude) alongside IMU data to the Node.js backend via WebSockets or HTTP POST requests at high frequency."
           />
           <ModuleDetails
-            icon={<CloudRain className="w-6 h-6 text-cyan-400" />}
-            title="Geofence Processing API"
-            content="The backend calculates the Haversine distance between the incoming coordinates and the predefined boundary vertices. Polygons are evaluated using the Ray-Casting algorithm to determine containment."
+            icon={<Crosshair className="w-5 h-5 text-purple-400" />}
+            title="Geofence API"
+            content="The backend calculates Haversine distance and vertex containment using Ray-Casting algorithms to determine precise spatial compliance."
           />
           <ModuleDetails
-            icon={<ShieldAlert className="w-6 h-6 text-rose-400" />}
-            title="Spoofing Detection Matrix"
-            content="Simultaneously, the ingestion layer compares the distance covered against the time elapsed. If velocity > MAX_VEHICLE_SPEED, or if GPS shows displacement without corresponding IMU acceleration, a spoofing flag is raised."
+            icon={<ShieldAlert className="w-5 h-5 text-rose-400" />}
+            title="Anomaly Matrix"
+            content="Simultaneously compares positional delta against physical flight envelopes. Rejects GPS jumps without corresponding IMU acceleration."
           />
           <ModuleDetails
-            icon={<BellRing className="w-6 h-6 text-amber-400" />}
-            title="Alert Generation"
-            content="Any anomalies immediately trigger a 'Breach' or 'Spoof' event, pushed to the React dashboard via WebSockets for instantaneous operational awareness and automated fail-safes."
+            icon={<BellRing className="w-5 h-5 text-amber-400" />}
+            title="Live Alerts"
+            content="Anomalies immediately trigger a 'Breach' or 'Spoof' event, pushed to the dashboard via WebSockets for instantaneous awareness."
           />
           <div className="md:col-span-2">
             <ModuleDetails
-              icon={<Database className="w-6 h-6 text-emerald-400" />}
-              title="Secure Database Logging"
-              content="All states, normal or anomalous, are durably stored in a MongoDB cluster. This ensures full auditability of the mission profile, allowing for post-flight analysis of breach points and spoofing vectors."
+              icon={<Database className="w-5 h-5 text-emerald-400" />}
+              title="Persistence Layer"
+              content="All states are durably stored in a MongoDB cluster. This ensures full auditability of the mission profile, allowing for post-flight forensic analysis."
             />
           </div>
         </div>
@@ -73,36 +85,31 @@ export default function SystemArchitecturePage() {
   );
 }
 
-function ArchitectureNode({ icon, title, description, color }: { icon: React.ReactNode, title: string, description: string, color: 'blue' | 'purple' | 'emerald' }) {
-  const getColors = () => {
-    switch(color) {
-      case 'blue': return "bg-blue-500/10 border-blue-500/20";
-      case 'purple': return "bg-purple-500/10 border-purple-500/20";
-      case 'emerald': return "bg-emerald-500/10 border-emerald-500/20";
-    }
-  };
-
+function ArchitectureNode({ icon, title, description, metric, accent }: { icon: React.ReactNode, title: string, description: string, metric: string, accent: string }) {
   return (
-    <div className={`p-6 rounded-2xl border flex-1 text-center bg-[#0a0a0a] backdrop-blur-sm shadow-xl ${getColors()}`}>
-      <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 ${getColors()}`}>
+    <div className={`p-10 flex-1 text-center bg-[#0a0a0a] group hover:bg-white/[0.02] transition-colors relative overflow-hidden`}>
+      <div className={`mx-auto w-14 h-14 border border-white/10 flex items-center justify-center mb-6 group-hover:border-white/30 transition-colors`}>
         {icon}
       </div>
-      <h3 className="font-bold text-white mb-2">{title}</h3>
-      <p className="text-sm text-gray-400">{description}</p>
+      <h3 className="font-mono font-bold text-white uppercase tracking-tight mb-2">{title}</h3>
+      <p className="text-xs text-gray-500 font-sans leading-relaxed mb-6">{description}</p>
+      <div className="pt-4 border-t border-white/5">
+        <span className={`text-[10px] font-mono tracking-[0.2em] font-bold ${accent}`}>{metric}</span>
+      </div>
     </div>
   );
 }
 
 function ModuleDetails({ icon, title, content }: { icon: React.ReactNode, title: string, content: string }) {
   return (
-    <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:bg-white/[0.07] transition-colors">
-      <div className="flex items-center gap-4 mb-4">
-        <div className="p-3 bg-white/5 rounded-lg border border-white/10">
+    <div className="bg-[#0a0a0a] p-8 hover:bg-white/[0.02] transition-colors h-full flex flex-col justify-start">
+      <div className="flex items-center gap-4 mb-6">
+        <div className="p-2 border border-white/10">
           {icon}
         </div>
-        <h3 className="text-xl font-bold text-white">{title}</h3>
+        <h3 className="text-sm font-mono font-bold text-white uppercase tracking-widest">{title}</h3>
       </div>
-      <p className="text-gray-400 leading-relaxed text-sm">
+      <p className="text-xs text-gray-400 font-sans leading-relaxed">
         {content}
       </p>
     </div>
