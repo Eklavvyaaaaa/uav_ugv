@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { ShieldCheck, ShieldAlert, Navigation, Settings, Loader2, MapPin, Crosshair, Server } from "lucide-react";
+import { Settings, Loader2, MapPin, Crosshair, Server } from "lucide-react";
+import { useLocationTracker } from "../../hooks/useLocationTracker";
+import { LocationMonitor } from "../../components/LocationMonitor";
+import { GeofenceConfig } from "../../types/Location";
 
-// Dynamically import map component to avoid SSR issues with Leaflet
 const Map = dynamic(() => import("@/components/Map"), {
   ssr: false,
   loading: () => (
@@ -18,19 +20,17 @@ const Map = dynamic(() => import("@/components/Map"), {
   ),
 });
 
-interface GeofenceData {
-  geofence: { center: [number, number]; radiusMeters: number; colorHex: string };
-  device: { initialPosition: [number, number]; id: string; status: string };
-}
-
 export default function GeofenceSimulation() {
-  const [data, setData] = useState<GeofenceData | null>(null);
-  const [devicePos, setDevicePos] = useState<[number, number] | null>(null);
-  const [isInside, setIsInside] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [deviceId, setDeviceId] = useState("UNKNOWN");
   const [manualLat, setManualLat] = useState("");
   const [manualLng, setManualLng] = useState("");
   const [manualRadius, setManualRadius] = useState("");
+
+  const { state, config, updateLocation, setGeofenceConfig } = useLocationTracker({
+    center: { lat: 0, lng: 0 },
+    radius: 500,
+  });
 
   useEffect(() => {
     async function fetchConfig() {
@@ -38,8 +38,17 @@ export default function GeofenceSimulation() {
         const res = await fetch("/api/geofence-status");
         if (res.ok) {
           const json = await res.json();
-          setData(json.data);
-          setDevicePos(json.data.device.initialPosition);
+          const { geofence, device } = json.data;
+          
+          setDeviceId(device.id);
+          
+          const initialConfig: GeofenceConfig = {
+            center: { lat: geofence.center[0], lng: geofence.center[1] },
+            radius: geofence.radiusMeters,
+          };
+          setGeofenceConfig(initialConfig);
+          // Set initial device pos
+          updateLocation(device.initialPosition[0], device.initialPosition[1]);
         }
       } catch (e) {
         console.error("Failed to fetch geofence config", e);
@@ -48,6 +57,7 @@ export default function GeofenceSimulation() {
       }
     }
     fetchConfig();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleManualOverride = (e: React.FormEvent) => {
@@ -58,41 +68,19 @@ export default function GeofenceSimulation() {
       const lng = parseFloat(manualLng);
       
       if (!isNaN(lat) && !isNaN(lng)) {
-        setDevicePos([lat, lng]);
+        updateLocation(lat, lng);
       }
     }
 
-    if (manualRadius && data) {
+    if (manualRadius) {
       const radius = parseFloat(manualRadius);
       if (!isNaN(radius) && radius > 0) {
-        setData(prev => prev ? {
-          ...prev,
-          geofence: { ...prev.geofence, radiusMeters: radius }
-        } : null);
+        setGeofenceConfig({ ...config, radius });
       }
     }
   };
 
-  const moveDevice = (direction: 'n' | 's' | 'e' | 'w') => {
-    if (!devicePos) return;
-    const step = 0.0005;
-    setDevicePos(prev => {
-      if(!prev) return null;
-      switch (direction) {
-        case 'n': return [prev[0] + step, prev[1]];
-        case 's': return [prev[0] - step, prev[1]];
-        case 'e': return [prev[0], prev[1] + step];
-        case 'w': return [prev[0], prev[1] - step];
-        default: return prev;
-      }
-    });
-  };
-
-  const handleStatusChange = useCallback((status: boolean) => {
-    setIsInside(status);
-  }, []);
-
-  if (loading || !data || !devicePos) {
+  if (loading || !state.currentLocation) {
     return (
       <div className="min-h-screen bg-[#050505] flex items-center justify-center relative">
          <div className="absolute inset-0 bg-grid-white opacity-5 pointer-events-none"></div>
@@ -118,7 +106,7 @@ export default function GeofenceSimulation() {
                   <span className="animate-ping absolute inline-flex h-full w-full bg-blue-400 opacity-75"></span>
                   <span className="relative inline-flex h-1.5 w-1.5 bg-blue-500"></span>
                 </span>
-                LINK ESTABLISHED // {data.device.id}
+                LINK ESTABLISHED // {deviceId}
               </div>
               <h1 className="text-4xl md:text-5xl font-mono font-black uppercase text-white tracking-tighter">Geofence Terminal</h1>
             </div>
@@ -137,42 +125,23 @@ export default function GeofenceSimulation() {
             {/* HUD Map Overlays */}
             <div className="absolute top-4 left-4 z-[400] pointer-events-none">
               <div className="text-[10px] font-mono text-white/50 tracking-[0.2em] bg-black/60 px-2 py-1 border border-white/10 backdrop-blur-md">
-                POS: {devicePos[0].toFixed(5)}, {devicePos[1].toFixed(5)}
+                POS: {state.currentLocation.lat.toFixed(5)}, {state.currentLocation.lng.toFixed(5)}
               </div>
             </div>
             
             <Map 
-              center={data.geofence.center} 
-              geofenceRadius={data.geofence.radiusMeters} 
-              devicePosition={devicePos}
-              onStatusChange={handleStatusChange}
+              config={config} 
+              locationState={state}
             />
           </div>
 
           {/* Controls & Status Sidebar */}
           <div className="lg:col-span-4 flex flex-col gap-px order-1 lg:order-2 bg-transparent">
-            {/* Status Panel */}
-            <div className={`p-8 bg-[#0a0a0a] transition-colors duration-500 flex flex-col justify-center h-48 relative overflow-hidden group border-b border-transparent`}>
-              <div className={`absolute left-0 top-0 bottom-0 w-1 transition-colors ${isInside ? "bg-emerald-500" : "bg-rose-500"}`} />
-              <div className="flex items-center gap-6 relative z-10">
-                <div className={`p-4 border ${isInside ? "border-emerald-500/30 text-emerald-500 bg-emerald-500/5 group-hover:bg-emerald-500/10" : "border-rose-500/50 text-rose-500 bg-rose-500/10 group-hover:bg-rose-500/20"} transition-colors`}>
-                  {isInside ? (
-                    <ShieldCheck className="w-8 h-8" />
-                  ) : (
-                    <ShieldAlert className="w-8 h-8 animate-pulse" />
-                  )}
-                </div>
-                <div>
-                  <h3 className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-[0.3em] mb-2">Perimeter Status</h3>
-                  <p className={`font-mono font-bold text-xl uppercase tracking-wider ${isInside ? "text-emerald-500" : "text-rose-500"}`}>
-                    {isInside ? "SECURE_ZONE" : "BREACH_DETECTED"}
-                  </p>
-                </div>
-              </div>
-            </div>
+            {/* Location Monitor Component */}
+            <LocationMonitor state={state} />
 
             {/* Simulation Controls */}
-            <div className="bg-[#0a0a0a] p-8 flex-grow flex flex-col">
+            <div className="bg-[#0a0a0a] p-8 flex-grow flex flex-col border-b border-transparent">
               <div className="flex items-center gap-3 mb-8 border-b border-white/10 pb-4">
                 <Settings className="w-5 h-5 text-gray-400" />
                 <h3 className="text-sm font-mono font-bold text-white uppercase tracking-widest">Manual Override</h3>
@@ -186,7 +155,7 @@ export default function GeofenceSimulation() {
                       type="text" 
                       value={manualLat}
                       onChange={(e) => setManualLat(e.target.value)}
-                      placeholder={devicePos ? devicePos[0].toFixed(5) : "Enter Lat"}
+                      placeholder={state.currentLocation.lat.toFixed(5)}
                       className="bg-[#0a0a0a] border border-white/10 text-white font-mono text-xs p-3 w-full focus:outline-none focus:border-blue-500/50 transition-colors placeholder:text-gray-700"
                     />
                   </div>
@@ -196,7 +165,7 @@ export default function GeofenceSimulation() {
                       type="text" 
                       value={manualLng}
                       onChange={(e) => setManualLng(e.target.value)}
-                      placeholder={devicePos ? devicePos[1].toFixed(5) : "Enter Lng"}
+                      placeholder={state.currentLocation.lng.toFixed(5)}
                       className="bg-[#0a0a0a] border border-white/10 text-white font-mono text-xs p-3 w-full focus:outline-none focus:border-blue-500/50 transition-colors placeholder:text-gray-700"
                     />
                   </div>
@@ -206,7 +175,7 @@ export default function GeofenceSimulation() {
                       type="text" 
                       value={manualRadius}
                       onChange={(e) => setManualRadius(e.target.value)}
-                      placeholder={data?.geofence.radiusMeters.toString() || "Enter Radius"}
+                      placeholder={config.radius.toString()}
                       className="bg-[#0a0a0a] border border-white/10 text-white font-mono text-xs p-3 w-full focus:outline-none focus:border-blue-500/50 transition-colors placeholder:text-gray-700"
                     />
                   </div>
@@ -220,17 +189,14 @@ export default function GeofenceSimulation() {
                     <button 
                       type="button"
                       onClick={() => {
-                        setDevicePos(data.device.initialPosition);
-                        setData(prev => prev ? {
-                          ...prev,
-                          geofence: { ...prev.geofence, radiusMeters: 500 } // Or whatever the initial API radius should be (could also store original)
-                        } : null);
+                        updateLocation(config.center.lat, config.center.lng);
+                        setGeofenceConfig({ ...config, radius: 500 });
                         setManualLat("");
                         setManualLng("");
                         setManualRadius("");
                       }} 
                       className="flex-none w-12 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-rose-500/50 text-gray-400 hover:text-rose-500 p-3 flex items-center justify-center transition-all text-[10px] font-mono font-black tracking-widest uppercase"
-                      title="Reset to Initial"
+                      title="Reset to Init"
                     >
                       RST
                     </button>
@@ -242,13 +208,10 @@ export default function GeofenceSimulation() {
                     if ("geolocation" in navigator) {
                       navigator.geolocation.getCurrentPosition(
                         (position) => {
-                          const newPos: [number, number] = [position.coords.latitude, position.coords.longitude];
-                          setData(prev => prev ? {
-                            ...prev,
-                            geofence: { ...prev.geofence, center: newPos },
-                            device: { ...prev.device, initialPosition: newPos }
-                          } : null);
-                          setDevicePos(newPos);
+                          const lat = position.coords.latitude;
+                          const lng = position.coords.longitude;
+                          setGeofenceConfig({ ...config, center: { lat, lng }});
+                          updateLocation(lat, lng);
                         },
                         (error) => {
                           console.error("Error getting location:", error);
