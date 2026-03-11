@@ -28,6 +28,9 @@ export default function GeofenceSimulation() {
   const [devicePos, setDevicePos] = useState<[number, number] | null>(null);
   const [isInside, setIsInside] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [manualLat, setManualLat] = useState("");
+  const [manualLng, setManualLng] = useState("");
+  const [manualRadius, setManualRadius] = useState("");
 
   useEffect(() => {
     async function fetchConfig() {
@@ -46,6 +49,29 @@ export default function GeofenceSimulation() {
     }
     fetchConfig();
   }, []);
+
+  const handleManualOverride = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (manualLat && manualLng) {
+      const lat = parseFloat(manualLat);
+      const lng = parseFloat(manualLng);
+      
+      if (!isNaN(lat) && !isNaN(lng)) {
+        setDevicePos([lat, lng]);
+      }
+    }
+
+    if (manualRadius && data) {
+      const radius = parseFloat(manualRadius);
+      if (!isNaN(radius) && radius > 0) {
+        setData(prev => prev ? {
+          ...prev,
+          geofence: { ...prev.geofence, radiusMeters: radius }
+        } : null);
+      }
+    }
+  };
 
   const moveDevice = (direction: 'n' | 's' | 'e' | 'w') => {
     if (!devicePos) return;
@@ -153,29 +179,63 @@ export default function GeofenceSimulation() {
               </div>
               
               <div className="flex-grow flex flex-col justify-center items-center">
-                <div className="grid grid-cols-3 gap-1 w-full max-w-[240px]">
-                  <div className="bg-white/[0.02]" />
-                  <button onClick={() => moveDevice('n')} className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-white/20 p-4 flex items-center justify-center transition-all group">
-                    <Navigation className="w-5 h-5 -rotate-45 text-gray-500 group-hover:text-white" />
-                  </button>
-                  <div className="bg-white/[0.02]" />
-                  
-                  <button onClick={() => moveDevice('w')} className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-white/20 p-4 flex items-center justify-center transition-all group">
-                    <Navigation className="w-5 h-5 -rotate-[135deg] text-gray-500 group-hover:text-white" />
-                  </button>
-                  <button onClick={() => setDevicePos(data.device.initialPosition)} className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 text-gray-300 hover:text-white p-4 flex items-center justify-center transition-all text-[10px] font-mono font-black tracking-widest uppercase">
-                    RST
-                  </button>
-                  <button onClick={() => moveDevice('e')} className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-white/20 p-4 flex items-center justify-center transition-all group">
-                    <Navigation className="w-5 h-5 rotate-[45deg] text-gray-500 group-hover:text-white" />
-                  </button>
-                  
-                  <div className="bg-white/[0.02]" />
-                  <button onClick={() => moveDevice('s')} className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-white/20 p-4 flex items-center justify-center transition-all group">
-                    <Navigation className="w-5 h-5 rotate-[135deg] text-gray-500 group-hover:text-white" />
-                  </button>
-                  <div className="bg-white/[0.02]" />
-                </div>
+                <form onSubmit={handleManualOverride} className="w-full max-w-[240px] flex flex-col gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] text-gray-500 font-mono tracking-widest uppercase">Latitude</label>
+                    <input 
+                      type="text" 
+                      value={manualLat}
+                      onChange={(e) => setManualLat(e.target.value)}
+                      placeholder={devicePos ? devicePos[0].toFixed(5) : "Enter Lat"}
+                      className="bg-[#0a0a0a] border border-white/10 text-white font-mono text-xs p-3 w-full focus:outline-none focus:border-blue-500/50 transition-colors placeholder:text-gray-700"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] text-gray-500 font-mono tracking-widest uppercase">Longitude</label>
+                    <input 
+                      type="text" 
+                      value={manualLng}
+                      onChange={(e) => setManualLng(e.target.value)}
+                      placeholder={devicePos ? devicePos[1].toFixed(5) : "Enter Lng"}
+                      className="bg-[#0a0a0a] border border-white/10 text-white font-mono text-xs p-3 w-full focus:outline-none focus:border-blue-500/50 transition-colors placeholder:text-gray-700"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] text-gray-500 font-mono tracking-widest uppercase">Radius (Meters)</label>
+                    <input 
+                      type="text" 
+                      value={manualRadius}
+                      onChange={(e) => setManualRadius(e.target.value)}
+                      placeholder={data?.geofence.radiusMeters.toString() || "Enter Radius"}
+                      className="bg-[#0a0a0a] border border-white/10 text-white font-mono text-xs p-3 w-full focus:outline-none focus:border-blue-500/50 transition-colors placeholder:text-gray-700"
+                    />
+                  </div>
+                  <div className="flex gap-2 w-full mt-2">
+                    <button 
+                      type="submit"
+                      className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 text-white p-3 flex items-center justify-center transition-all text-[10px] font-mono font-black tracking-widest uppercase"
+                    >
+                      OVERRIDE
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setDevicePos(data.device.initialPosition);
+                        setData(prev => prev ? {
+                          ...prev,
+                          geofence: { ...prev.geofence, radiusMeters: 500 } // Or whatever the initial API radius should be (could also store original)
+                        } : null);
+                        setManualLat("");
+                        setManualLng("");
+                        setManualRadius("");
+                      }} 
+                      className="flex-none w-12 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-rose-500/50 text-gray-400 hover:text-rose-500 p-3 flex items-center justify-center transition-all text-[10px] font-mono font-black tracking-widest uppercase"
+                      title="Reset to Initial"
+                    >
+                      RST
+                    </button>
+                  </div>
+                </form>
                 
                 <button 
                   onClick={() => {
