@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -25,15 +26,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark scroll-smooth">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} min-h-screen flex flex-col font-sans bg-[#050505] text-[#e0e0e0]`}
+        className={`${inter.variable} ${spaceGrotesk.variable} min-h-screen flex flex-col font-sans bg-white dark:bg-[#050505] text-black dark:text-[#e0e0e0] transition-colors`}
       >
-        <Navbar />
-        <main className="flex-grow pt-16 selection:bg-blue-500/20 selection:text-white">
-          {children}
-        </main>
-        <Footer />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Navbar />
+          <main className="flex-grow pt-16 selection:bg-blue-500/20 selection:dark:text-white">
+            {children}
+          </main>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

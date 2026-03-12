@@ -11,8 +11,8 @@ const Map = dynamic(() => import("@/components/Map"), {
   ssr: false,
   loading: () => (
     <div className="h-full w-full flex items-center justify-center bg-[#0a0a0a] border border-white/5 relative overflow-hidden">
-      <div className="absolute inset-0 bg-grid-white opacity-5"></div>
-      <div className="flex flex-col items-center gap-4 text-blue-500 font-mono text-[10px] tracking-[0.2em]">
+      <div className="absolute inset-0 bg-grid-black dark:bg-grid-white opacity-5"></div>
+      <div className="flex flex-col items-center gap-4 text-blue-600 dark:text-blue-500 font-mono text-[10px] tracking-[0.2em]">
         <Crosshair className="w-8 h-8 animate-spin" />
         INITIALIZING SATELLITE LINK...
       </div>
@@ -82,49 +82,49 @@ export default function GeofenceSimulation() {
 
   if (loading || !state.currentLocation) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center relative">
-         <div className="absolute inset-0 bg-grid-white opacity-5 pointer-events-none"></div>
-         <div className="flex flex-col items-center gap-4 border border-white/10 p-8 bg-black/50 backdrop-blur-sm relative z-10">
-           <Loader2 className="w-8 h-8 text-white animate-spin" />
-           <p className="text-gray-400 font-mono tracking-[0.3em] uppercase text-xs">BOOT SEQUENCE INITIATED...</p>
+      <div className="min-h-screen bg-white dark:bg-[#050505] flex items-center justify-center relative">
+         <div className="absolute inset-0 bg-grid-black dark:bg-grid-white opacity-5 pointer-events-none"></div>
+         <div className="flex flex-col items-center gap-4 border border-black/10 dark:border-white/10 p-8 bg-white/50 dark:bg-black/50 backdrop-blur-sm relative z-10">
+           <Loader2 className="w-8 h-8 text-black dark:text-white animate-spin" />
+           <p className="text-gray-600 dark:text-gray-400 font-mono tracking-[0.3em] uppercase text-xs">BOOT SEQUENCE INITIATED...</p>
          </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] py-24 relative overflow-hidden">
-      <div className="absolute inset-0 bg-grid-white opacity-5 pointer-events-none" />
+    <div className="min-h-screen bg-white dark:bg-[#050505] py-24 relative overflow-hidden">
+      <div className="absolute inset-0 bg-grid-black dark:bg-grid-white opacity-5 pointer-events-none" />
       <div className="absolute top-0 right-1/4 w-[1px] h-full bg-gradient-to-b from-transparent via-blue-500/20 to-transparent pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <header className="mb-12 border-b border-white/10 pb-8">
+        <header className="mb-12 border-b border-black/10 dark:border-white/10 pb-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-3 px-3 py-1 bg-blue-500/[0.05] border border-blue-500/30 text-blue-400 text-[10px] font-mono font-bold tracking-[0.2em] uppercase mb-6">
+              <div className="inline-flex items-center gap-3 px-3 py-1 bg-blue-500/[0.05] border border-blue-500/30 text-blue-600 dark:text-blue-400 text-[10px] font-mono font-bold tracking-[0.2em] uppercase mb-6">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full bg-blue-400 opacity-75"></span>
                   <span className="relative inline-flex h-1.5 w-1.5 bg-blue-500"></span>
                 </span>
                 LINK ESTABLISHED // {deviceId}
               </div>
-              <h1 className="text-4xl md:text-5xl font-mono font-black uppercase text-white tracking-tighter">Geofence Terminal</h1>
+              <h1 className="text-4xl md:text-5xl font-mono font-black uppercase text-black dark:text-white tracking-tighter">Geofence Terminal</h1>
             </div>
             <div className="text-right">
               <p className="text-xs text-gray-500 font-mono tracking-widest uppercase mb-1">Live Telemetry Feed</p>
-              <div className="flex items-center gap-2 justify-end text-sm text-gray-400 font-mono">
+              <div className="flex items-center gap-2 justify-end text-sm text-gray-600 dark:text-gray-400 font-mono">
                 <Server className="w-4 h-4 text-emerald-500" /> SERVER: CONNECTED
               </div>
             </div>
           </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-px bg-white/10 border border-white/10 p-px">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-px bg-black/10 dark:bg-white/10 border border-black/10 dark:border-white/10 p-px">
           {/* Map Area */}
-          <div className="lg:col-span-8 h-[600px] order-2 lg:order-1 relative bg-[#0a0a0a]">
+          <div className="lg:col-span-8 h-[600px] order-2 lg:order-1 relative bg-gray-50 dark:bg-[#0a0a0a]">
             {/* HUD Map Overlays */}
             <div className="absolute top-4 left-4 z-[400] pointer-events-none">
-              <div className="text-[10px] font-mono text-white/50 tracking-[0.2em] bg-black/60 px-2 py-1 border border-white/10 backdrop-blur-md">
+              <div className="text-[10px] font-mono text-black/50 dark:text-white/50 tracking-[0.2em] bg-white/60 dark:bg-black/60 px-2 py-1 border border-black/10 dark:border-white/10 backdrop-blur-md">
                 POS: {state.currentLocation.lat.toFixed(5)}, {state.currentLocation.lng.toFixed(5)}
               </div>
             </div>
@@ -141,10 +141,10 @@ export default function GeofenceSimulation() {
             <LocationMonitor state={state} />
 
             {/* Simulation Controls */}
-            <div className="bg-[#0a0a0a] p-8 flex-grow flex flex-col border-b border-transparent">
-              <div className="flex items-center gap-3 mb-8 border-b border-white/10 pb-4">
-                <Settings className="w-5 h-5 text-gray-400" />
-                <h3 className="text-sm font-mono font-bold text-white uppercase tracking-widest">Manual Override</h3>
+            <div className="bg-gray-50 dark:bg-[#0a0a0a] p-8 flex-grow flex flex-col border-b border-transparent">
+              <div className="flex items-center gap-3 mb-8 border-b border-black/10 dark:border-white/10 pb-4">
+                <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <h3 className="text-sm font-mono font-bold text-black dark:text-white uppercase tracking-widest">Manual Override</h3>
               </div>
               
               <div className="flex-grow flex flex-col justify-center items-center">
@@ -156,7 +156,7 @@ export default function GeofenceSimulation() {
                       value={manualLat}
                       onChange={(e) => setManualLat(e.target.value)}
                       placeholder={state.currentLocation.lat.toFixed(5)}
-                      className="bg-[#0a0a0a] border border-white/10 text-white font-mono text-xs p-3 w-full focus:outline-none focus:border-blue-500/50 transition-colors placeholder:text-gray-700"
+                      className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 text-black dark:text-white font-mono text-xs p-3 w-full focus:outline-none focus:border-blue-500/50 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-700"
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -166,7 +166,7 @@ export default function GeofenceSimulation() {
                       value={manualLng}
                       onChange={(e) => setManualLng(e.target.value)}
                       placeholder={state.currentLocation.lng.toFixed(5)}
-                      className="bg-[#0a0a0a] border border-white/10 text-white font-mono text-xs p-3 w-full focus:outline-none focus:border-blue-500/50 transition-colors placeholder:text-gray-700"
+                      className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 text-black dark:text-white font-mono text-xs p-3 w-full focus:outline-none focus:border-blue-500/50 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-700"
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -176,13 +176,13 @@ export default function GeofenceSimulation() {
                       value={manualRadius}
                       onChange={(e) => setManualRadius(e.target.value)}
                       placeholder={config.radius.toString()}
-                      className="bg-[#0a0a0a] border border-white/10 text-white font-mono text-xs p-3 w-full focus:outline-none focus:border-blue-500/50 transition-colors placeholder:text-gray-700"
+                      className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 text-black dark:text-white font-mono text-xs p-3 w-full focus:outline-none focus:border-blue-500/50 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-700"
                     />
                   </div>
                   <div className="flex gap-2 w-full mt-2">
                     <button 
                       type="submit"
-                      className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 text-white p-3 flex items-center justify-center transition-all text-[10px] font-mono font-black tracking-widest uppercase"
+                      className="flex-1 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 text-black dark:text-white p-3 flex items-center justify-center transition-all text-[10px] font-mono font-black tracking-widest uppercase"
                     >
                       OVERRIDE
                     </button>
@@ -195,7 +195,7 @@ export default function GeofenceSimulation() {
                         setManualLng("");
                         setManualRadius("");
                       }} 
-                      className="flex-none w-12 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-rose-500/50 text-gray-400 hover:text-rose-500 p-3 flex items-center justify-center transition-all text-[10px] font-mono font-black tracking-widest uppercase"
+                      className="flex-none w-12 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10 hover:border-rose-500/50 text-gray-600 dark:text-gray-400 hover:text-rose-500 p-3 flex items-center justify-center transition-all text-[10px] font-mono font-black tracking-widest uppercase"
                       title="Reset to Init"
                     >
                       RST
